@@ -37,7 +37,16 @@ bool Sudoku::isComplete() const {
 }
 
 bool Sudoku::solve() {
-    //TODO
+    if (isComplete()) return true;
+    int i, j;
+    findBestCell(i, j);
+    for (int number = 1; number < 10; ++number) {
+        if (accepts(i, j, number)) {
+            place(i, j, number);
+            if (solve()) return true;
+            else clear(i, j);
+        }
+    }
     return false;
 }
 
@@ -71,8 +80,7 @@ void Sudoku::print() const {
 }
 
 bool Sudoku::accepts(int i, int j, int n) {
-	//TODO
-    return false;
+    return (!lineHasNumber[i][n] && !columnHasNumber[j][n] && !block3x3HasNumber[i / 3][j / 3][n]);
 }
 
 void Sudoku::place(int i, int j, int n) {
@@ -103,6 +111,26 @@ void Sudoku::clear() {
         for (int j = 0; j < 9; j++)
             if (numbers[i][j] != 0)
                 clear(i, j);
+}
+
+void Sudoku::findBestCell(int &i, int &j) {
+    int minPossibleValues = 10;
+    for (int line = 0; line < 9; ++line) {
+        for (int column = 0; column < 9; ++column) {
+            if (numbers[line][column] != 0) continue;  // don't search on filled lines
+            int possibleValuesCounter = 0;
+            for (int number = 1; number < 10; ++number) {
+                if (accepts(line, column, number)) {
+                    ++possibleValuesCounter;
+                }
+            }
+            if (possibleValuesCounter < minPossibleValues) {
+                i = line;
+                j = column;
+                minPossibleValues = possibleValuesCounter;
+            }
+        }
+    }
 }
 
 /// TESTS ///
