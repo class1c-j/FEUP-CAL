@@ -1,3 +1,4 @@
+#include <cstdlib>
 #include "exercises.h"
 
 Sudoku::Sudoku() {
@@ -51,12 +52,35 @@ bool Sudoku::solve() {
 }
 
 int Sudoku::countSolutions() {
-    //TODO
-    return 0;
+    if (isComplete()) return 1;
+    int i, j;
+    unsigned int numberOfSolutions = 0;
+    findBestCell(i, j);
+    for (int number = 1; number < 10; ++number) {
+        if (accepts(i, j, number)) {
+            place(i, j, number);
+            numberOfSolutions += countSolutions();
+            if (numberOfSolutions >= 2) return 2; // stops on 2nd solution
+            clear(i, j);
+        }
+    }
+    return numberOfSolutions;
 }
 
 void Sudoku::generate() {
-	//TODO
+    unsigned numberOfSolutions = 0;
+	while (numberOfSolutions != 1) {
+	    unsigned int line = rand() % 9;
+        unsigned int column = rand() % 9;
+        unsigned int number = 1 + (rand() % 9);
+        if (accepts(line, column, number)) {
+            place(line, column, number);
+            numberOfSolutions = countSolutions();
+            if (numberOfSolutions == 0) {
+                clear();
+            }
+        }
+	}
 }
 
 int** Sudoku::getNumbers() {
@@ -117,7 +141,7 @@ void Sudoku::findBestCell(int &i, int &j) {
     int minPossibleValues = 10;
     for (int line = 0; line < 9; ++line) {
         for (int column = 0; column < 9; ++column) {
-            if (numbers[line][column] != 0) continue;  // don't search on filled lines
+            if (numbers[line][column] != 0) continue;  // don't search on filled squares
             int possibleValuesCounter = 0;
             for (int number = 1; number < 10; ++number) {
                 if (accepts(line, column, number)) {
@@ -325,7 +349,9 @@ TEST(TP2_Ex2, testSudokuWithMultipleSolutions) {
              {3, 2, 0, 0, 0, 0, 0, 0, 6}};
 
     Sudoku s(in);
+    EXPECT_EQ(s.countSolutions(), 2);
     EXPECT_EQ(s.solve() && s.isComplete(), true);
+
     int** out = s.getNumbers();
     for (int i=0; i<9; i++)
         for (int j=0; j<9; j++)
@@ -346,8 +372,10 @@ TEST(TP2_Ex2, testSudokuEmpty) {
              {0, 0, 0, 0, 0, 0, 0, 0, 0}};
 
     Sudoku s(in);
+    EXPECT_EQ(s.countSolutions(), 2);
     EXPECT_EQ(s.solve(), true);
     EXPECT_EQ(s.isComplete(), true);
+
 }
 
 TEST(TP2_Ex2, testSudokuImpossible) {
@@ -363,6 +391,8 @@ TEST(TP2_Ex2, testSudokuImpossible) {
              {3, 2, 0, 0, 0, 0, 0, 0, 6}};
 
     Sudoku s(in);
+
+    EXPECT_EQ(s.countSolutions(), 0);
     EXPECT_EQ(s.solve(), false);
 
     int out[9][9];
@@ -373,4 +403,23 @@ TEST(TP2_Ex2, testSudokuImpossible) {
             out[i][a] = res[i][a];
 
     compareSudokus(in, out);
+}
+
+TEST(TP2_Ex2, testGenerate) {
+    int in[9][9] =
+            {{0, 0, 0, 0, 0, 0, 0, 0, 0},
+             {0, 0, 0, 0, 0, 0, 0, 0, 0},
+             {0, 0, 0, 0, 0, 0, 0, 0, 0},
+             {0, 0, 0, 0, 0, 0, 0, 0, 0},
+             {0, 0, 0, 0, 0, 0, 0, 0, 0},
+             {0, 0, 0, 0, 0, 0, 0, 0, 0},
+             {0, 0, 0, 0, 0, 0, 0, 0, 0},
+             {0, 0, 0, 0, 0, 0, 0, 0, 0},
+             {0, 0, 0, 0, 0, 0, 0, 0, 0}};
+
+    Sudoku s(in);
+    s.generate();
+
+    EXPECT_EQ(s.countSolutions(), 1);
+    EXPECT_EQ(s.solve(), true);
 }

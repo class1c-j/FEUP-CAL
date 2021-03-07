@@ -16,8 +16,8 @@ public:
     void print() const;
     bool findGoal(int x, int y);
 private:
-    int labyrinth[10][10];
-    bool visited[10][10];
+    int labyrinth[10][10]{};
+    bool visited[10][10]{};
     void initializeVisited();
 };
 

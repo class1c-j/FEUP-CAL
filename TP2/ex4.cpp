@@ -8,9 +8,29 @@ bool Activity::overlaps(const Activity &a2) const {
     return (start < a2.finish) && (a2.start < finish);
 }
 
+void activitySelectionBacktrackingRec(std::vector<Activity> &A, std::vector<Activity> &currentSolution,
+                                      std::vector<Activity> &bestSolution, int index) {
+    if (index == A.size()) {
+        if (currentSolution.size() > bestSolution.size()) {
+            bestSolution = currentSolution;
+        }
+    } else {
+        bool overlaps = false;
+        for (const auto &i : currentSolution) {
+            if (A[index].overlaps(i)) {
+                overlaps = true;
+                break;
+            }
+        }
+        if (!overlaps) currentSolution.push_back(A[index]);
+        activitySelectionBacktrackingRec(A, currentSolution, bestSolution, index + 1);
+    }
+}
+
 std::vector<Activity> activitySelectionBacktracking(std::vector<Activity> A) {
-    //TODO
-    return A;
+    std::vector<Activity> solution{}, current{};
+    activitySelectionBacktrackingRec(A, current, solution, 0);
+    return solution;
 }
 
 /// TESTS ///
