@@ -18,32 +18,33 @@ Point::Point(int x, int y) {
 }
 
 double Point::distance(Point &p) const {
-    return sqrt((x-p.x) * (x-p.x)  + (y-p.y) * (y-p.y));
+    return sqrt((x - p.x) * (x - p.x) + (y - p.y) * (y - p.y));
 }
 
 double Point::distSquare(Point &p) const {
-    return (x-p.x) * (x-p.x)  + (y-p.y) * (y-p.y);
+    return (x - p.x) * (x - p.x) + (y - p.y) * (y - p.y);
 }
 
 bool Point::operator==(const Point &p) const {
     return (x == p.x && y == p.y);
 }
 
-std::ostream& operator<<(std::ostream& os, Point &p) {
+std::ostream &operator<<(std::ostream &os, Point &p) {
     os << "(" << p.x << "," << p.y << ")";
     return os;
 }
 
-Result::Result(double dmin, Point p1, Point p2): dmin(dmin), p1(p1), p2(p2) {
+Result::Result(double dmin, Point p1, Point p2) : dmin(dmin), p1(p1), p2(p2) {
 }
 
-Result::Result(): Result(MAX_DOUBLE, Point(0,0), Point(0,0)) {
+Result::Result() : Result(MAX_DOUBLE, Point(0, 0), Point(0, 0)) {
 }
 
 /**
  * Defines the number of threads to be used.
  */
 static int numThreads = 1;
+
 void setNumThreads(int num) {
     numThreads = num;
 }
@@ -61,29 +62,122 @@ static void sortByY(std::vector<Point> &v, int left, int right) {
 
 Result nearestPoints_BF(std::vector<Point> &vp) {
     Result res;
-    //TODO
+    for (int i = 0; i < vp.size(); ++i) {
+        for (int j = i + 1; j < vp.size(); ++j) {
+            if (vp.at(i).distance(vp.at(j)) < res.dmin) {
+                res.dmin = vp.at(i).distance(vp.at(j));
+                res.p1 = vp.at(i);
+                res.p2 = vp.at(j);
+            }
+        }
+    }
     return res;
 }
 
 Result nearestPoints_BF_SortByX(std::vector<Point> &vp) {
     Result res;
-    sortByX(vp, 0, vp.size()-1);
-    //TODO
+    sortByX(vp, 0, vp.size() - 1);
+    res = nearestPoints_BF(vp);
     return res;
 }
 
+// O(Nlog^2N)
+Result nearestPoints_DCRecursive(std::vector<Point> &vp, int leftIdx, int rightIdx) {
+    // Base Cases
+    if (leftIdx >= rightIdx) {      // 0 or 1 points (no possible pair)
+        return {};
+    }
+    if (leftIdx == rightIdx - 1) {  // 2 points
+        return {vp.at(leftIdx).distance(vp.at(rightIdx)), vp.at(leftIdx), vp.at(rightIdx)};
+    }
+
+    // Split
+    int middleIdx = (int) round((leftIdx + rightIdx) / 2.0);
+    Result nearestPointsLeft = nearestPoints_DCRecursive(vp, leftIdx, middleIdx);
+    Result nearestPointsRight = nearestPoints_DCRecursive(vp, middleIdx + 1, rightIdx);
+
+    // Merge
+    Result nearestPoints{};
+    nearestPoints.dmin = std::min(nearestPointsLeft.dmin, nearestPointsRight.dmin);
+
+    sortByY(vp, leftIdx, rightIdx);
+    for (int i = 0; i < rightIdx; ++i) {
+        for (int j = i + 1; j < rightIdx; ++j) {
+            if (std::abs(vp.at(i).y - vp.at(j).y) > nearestPoints.dmin) {
+                break;
+            } else {
+                if (vp.at(i).distance(vp.at(j)) < nearestPoints.dmin) {
+                    nearestPoints.dmin = vp.at(i).distance(vp.at(j));
+                    nearestPoints.p1 = vp.at(i);
+                    nearestPoints.p2 = vp.at(j);
+                }
+            }
+        }
+    }
+
+    return nearestPoints;
+
+}
+
+
+
 Result nearestPoints_DC(std::vector<Point> &vp) {
-    Result res;
-    sortByX(vp, 0, vp.size()-1);
-    //TODO
-    return res;
+    sortByX(vp, 0, vp.size() - 1);
+    return nearestPoints_DCRecursive(vp, 0, vp.size() - 1);
+}
+
+Result nearestPoints_DCRecursive(std::vector<Point> &vp, int leftIdx, int rightIdx, int threads) {
+    // Base Cases
+    if (leftIdx >= rightIdx) {      // 0 or 1 points (no possible pair)
+        return {};
+    }
+    if (leftIdx == rightIdx - 1) {  // 2 points
+        return {vp.at(leftIdx).distance(vp.at(rightIdx)), vp.at(leftIdx), vp.at(rightIdx)};
+    }
+
+    // Split
+    int middleIdx = (int) round((leftIdx + rightIdx) / 2.0);
+    Result nearestPointsLeft;
+    Result nearestPointsRight;
+    if (numThreads > 2) { // multi-thread
+        std::thread leftThread([&nearestPointsLeft, &vp, leftIdx, middleIdx]() {
+           nearestPointsLeft =  nearestPoints_DCRecursive(vp, leftIdx, middleIdx);
+        });
+        std::thread rightThread([&nearestPointsRight, &vp, rightIdx, middleIdx]() {
+            nearestPointsRight = nearestPoints_DCRecursive(vp, middleIdx + 1, rightIdx);
+        });
+        leftThread.join();
+        rightThread.join();
+
+    } else {
+        nearestPointsLeft = nearestPoints_DCRecursive(vp, leftIdx, middleIdx);
+        nearestPointsRight = nearestPoints_DCRecursive(vp, middleIdx + 1, rightIdx);
+    }
+
+    // Merge
+    Result nearestPoints{};
+    nearestPoints.dmin = std::min(nearestPointsLeft.dmin, nearestPointsRight.dmin);
+
+    sortByY(vp, leftIdx, rightIdx);
+    for (int i = 0; i < rightIdx; ++i) {
+        for (int j = i + 1; j < rightIdx; ++j) {
+            if (std::abs(vp.at(i).y - vp.at(j).y) > nearestPoints.dmin) {
+                break;
+            } else {
+                if (vp.at(i).distance(vp.at(j)) < nearestPoints.dmin) {
+                    nearestPoints.dmin = vp.at(i).distance(vp.at(j));
+                    nearestPoints.p1 = vp.at(i);
+                    nearestPoints.p2 = vp.at(j);
+                }
+            }
+        }
+    }
+
+    return nearestPoints;
 }
 
 Result nearestPoints_DC_MT(std::vector<Point> &vp) {
-    Result res;
-    sortByX(vp, 0, vp.size()-1);
-    //TODO
-    return res;
+    return nearestPoints_DCRecursive(vp, 0, vp.size() - 1, numThreads);
 }
 
 /// TESTS ///
@@ -109,7 +203,7 @@ void readPoints(std::string in, std::vector<Point> &vp) {
     while (!is.eof()) {
         double x, y;
         is >> x >> y;
-        Point p(x,y);
+        Point p(x, y);
         vp.push_back(p);
     }
 }
@@ -120,8 +214,8 @@ void readPoints(std::string in, std::vector<Point> &vp) {
 void shuffle(std::vector<Point> &vp, int left, int right) {
     std::random_device rd;
     std::mt19937 gen(rd());
-    std::uniform_int_distribution<int> dis(0, right - left +1);
-    for (int i = left; i < right; i++){
+    std::uniform_int_distribution<int> dis(0, right - left + 1);
+    for (int i = left; i < right; i++) {
         int k = i + dis(gen) % (right - i + 1);
         Point tmp = vp[i];
         vp[i] = vp[k];
@@ -132,8 +226,8 @@ void shuffle(std::vector<Point> &vp, int left, int right) {
 void shuffleY(std::vector<Point> &vp, int left, int right) {
     std::random_device rd;
     std::mt19937 gen(rd());
-    std::uniform_int_distribution<int> dis(0, right - left +1);
-    for (int i = left; i < right; i++){
+    std::uniform_int_distribution<int> dis(0, right - left + 1);
+    for (int i = left; i < right; i++) {
         int k = i + dis(gen) % (right - i + 1);
         double tmp = vp[i].y;
         vp[i].y = vp[k].y;
@@ -145,27 +239,27 @@ void shuffleY(std::vector<Point> &vp, int left, int right) {
 void generateRandom(int n, std::vector<Point> &vp) {
     std::random_device rd;
     std::mt19937 gen(rd());
-    std::uniform_int_distribution<int> dis(0, n-1);
+    std::uniform_int_distribution<int> dis(0, n - 1);
 
     vp.clear();
     // reference value for reference points (r, r), (r, r+1)
     int r = dis(gen);
-    vp.push_back(Point(r,r));
-    vp.push_back(Point(r,r+1));
+    vp.push_back(Point(r, r));
+    vp.push_back(Point(r, r + 1));
     for (int i = 2; i < n; i++)
         if (i < r)
             vp.push_back(Point(i, i));
         else
-            vp.push_back(Point(i+1, i+2));
-    shuffleY(vp, 2, n-1);
-    shuffle(vp, 0, n-1);
+            vp.push_back(Point(i + 1, i + 2));
+    shuffleY(vp, 2, n - 1);
+    shuffle(vp, 0, n - 1);
 }
 
 // Similar, but with constant X.
 void generateRandomConstX(int n, std::vector<Point> &vp) {
     std::random_device rd;
     std::mt19937 gen(rd());
-    std::uniform_int_distribution<int> dis(0, n-1);
+    std::uniform_int_distribution<int> dis(0, n - 1);
 
     vp.clear();
     // reference value for min dist
@@ -178,7 +272,7 @@ void generateRandomConstX(int n, std::vector<Point> &vp) {
         else
             y += 1 + dis(gen) % 100;
     }
-    shuffleY(vp, 0, n-1);
+    shuffleY(vp, 0, n - 1);
 }
 
 /**
@@ -190,7 +284,7 @@ void generateRandomConstX(int n, std::vector<Point> &vp) {
  */
 int GetMilliCount() {
     timeb tb;
-    ftime( &tb );
+    ftime(&tb);
     int nCount = tb.millitm + (tb.time & 0xfffff) * 1000;
     return nCount;
 }
@@ -243,9 +337,9 @@ int testNPRandConstX(int size, std::string name, double dmin, NP_FUNC func, std:
 void testNearestPoints(NP_FUNC func, std::string alg) {
     std::cout << "algorithm; data set; time elapsed (ms); distance; point1; point2" << std::endl;
     int maxTime = 10000;
-    if ( testNPFile("Pontos8", 11841.3, func, alg) > maxTime)
+    if (testNPFile("Pontos8", 11841.3, func, alg) > maxTime)
         return;
-    if ( testNPFile("Pontos64", 556.066, func, alg) > maxTime)
+    if (testNPFile("Pontos64", 556.066, func, alg) > maxTime)
         return;
     if (testNPFile("Pontos1k", 100.603, func, alg) > maxTime)
         return;

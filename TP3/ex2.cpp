@@ -1,5 +1,5 @@
 #include "exercises.h"
-
+#include <cmath>
 int maxSubsequenceDCRec(int A[], int start, int finish, int &i, int &j) {
     // Step 1: Base Case
     if (start == finish) {
@@ -9,7 +9,7 @@ int maxSubsequenceDCRec(int A[], int start, int finish, int &i, int &j) {
     }
 
     // Step 2: Split
-    int start2 = (start + finish) / 2;
+    int start2 = (int) round((start + finish) / 2.0);
     int finish1 = start2 - 1;
     int i1, j1;
     int i2, j2;
@@ -20,9 +20,10 @@ int maxSubsequenceDCRec(int A[], int start, int finish, int &i, int &j) {
     int currSum = A[finish1];
     int bestCrossingSum1 = A[finish1];
     int bestCrossingI = finish1;
-    for (int k = finish1 - 1; k >= start; --k) {
+
+    for(int k = finish1 - 1; k >= start; k--) {
         currSum += A[k];
-        if (currSum > bestCrossingSum1) {
+        if(currSum > bestCrossingSum1) {
             bestCrossingSum1 = currSum;
             bestCrossingI = k;
         }
@@ -31,9 +32,10 @@ int maxSubsequenceDCRec(int A[], int start, int finish, int &i, int &j) {
     currSum = A[start2];
     int bestCrossingSum2 = A[start2];
     int bestCrossingJ = start2;
-    for (int k = start2 + 1; k <= finish; ++k) {
+
+    for(int k = start2 + 1; k <= finish; k++) {
         currSum += A[k];
-        if (currSum > bestCrossingSum2) {
+        if(currSum > bestCrossingSum2) {
             bestCrossingSum2 = currSum;
             bestCrossingJ = k;
         }
@@ -41,26 +43,22 @@ int maxSubsequenceDCRec(int A[], int start, int finish, int &i, int &j) {
 
     int bestCrossingSum = bestCrossingSum1 + bestCrossingSum2;
 
-    if(bestCrossingSum > bestCrossingSum1 && bestCrossingSum > bestCrossingSum2){
+    if(bestCrossingSum > bestSum1 && bestCrossingSum > bestSum2){
         i = bestCrossingI;
         j = bestCrossingJ;
         return bestCrossingSum;
-    }
-    else if(bestCrossingSum1 > bestCrossingSum2){
+    } else if(bestSum1 > bestSum2){
         i = i1;
         j = j1;
         return bestSum1;
-    }
-    else if(bestCrossingSum2 > bestCrossingSum1){
+    } else {
         i = i2;
         j = j2;
         return bestSum2;
     }
-    return 0;
 }
 
 int maxSubsequenceDC(int A[], unsigned int n, int &i, int &j) {
-    i = 0; j = 0;
     if(n == 0) return 0;
     return maxSubsequenceDCRec(A, 0, n-1, i, j);
 }
