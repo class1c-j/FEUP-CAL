@@ -51,13 +51,13 @@ void setNumThreads(int num) {
 
 // Auxiliary functions to sort vector of points by X or Y axis.
 static void sortByX(std::vector<Point> &v, int left, int right) {
-    std::sort(v.begin( ) + left, v.begin() + right + 1,
-              [](Point p, Point q){ return p.x < q.x || (p.x == q.x && p.y < q.y); });
+    std::sort(v.begin() + left, v.begin() + right + 1,
+              [](Point p, Point q) { return p.x < q.x || (p.x == q.x && p.y < q.y); });
 }
 
 static void sortByY(std::vector<Point> &v, int left, int right) {
-    std::sort(v.begin( ) + left, v.begin() + right + 1,
-              [](Point p, Point q){ return p.y < q.y || (p.y == q.y && p.x < q.x); });
+    std::sort(v.begin() + left, v.begin() + right + 1,
+              [](Point p, Point q) { return p.y < q.y || (p.y == q.y && p.x < q.x); });
 }
 
 Result nearestPoints_BF(std::vector<Point> &vp) {
@@ -120,7 +120,6 @@ Result nearestPoints_DCRecursive(std::vector<Point> &vp, int leftIdx, int rightI
 }
 
 
-
 Result nearestPoints_DC(std::vector<Point> &vp) {
     sortByX(vp, 0, vp.size() - 1);
     return nearestPoints_DCRecursive(vp, 0, vp.size() - 1);
@@ -141,7 +140,7 @@ Result nearestPoints_DCRecursive(std::vector<Point> &vp, int leftIdx, int rightI
     Result nearestPointsRight;
     if (numThreads > 2) { // multi-thread
         std::thread leftThread([&nearestPointsLeft, &vp, leftIdx, middleIdx]() {
-           nearestPointsLeft =  nearestPoints_DCRecursive(vp, leftIdx, middleIdx);
+            nearestPointsLeft = nearestPoints_DCRecursive(vp, leftIdx, middleIdx);
         });
         std::thread rightThread([&nearestPointsRight, &vp, rightIdx, middleIdx]() {
             nearestPointsRight = nearestPoints_DCRecursive(vp, middleIdx + 1, rightIdx);

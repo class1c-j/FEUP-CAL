@@ -5,7 +5,7 @@ Sudoku::Sudoku() {
     this->initialize();
 }
 
-Sudoku::Sudoku(int nums[9][9]): Sudoku() {
+Sudoku::Sudoku(int nums[9][9]) : Sudoku() {
     for (int i = 0; i < 9; i++) {
         for (int j = 0; j < 9; j++) {
             if (nums[i][j] != 0) {
@@ -69,8 +69,8 @@ int Sudoku::countSolutions() {
 
 void Sudoku::generate() {
     unsigned numberOfSolutions = 0;
-	while (numberOfSolutions != 1) {
-	    unsigned int line = rand() % 9;
+    while (numberOfSolutions != 1) {
+        unsigned int line = rand() % 9;
         unsigned int column = rand() % 9;
         unsigned int number = 1 + (rand() % 9);
         if (accepts(line, column, number)) {
@@ -80,11 +80,11 @@ void Sudoku::generate() {
                 clear();
             }
         }
-	}
+    }
 }
 
-int** Sudoku::getNumbers() {
-    int** ret = new int*[9];
+int **Sudoku::getNumbers() {
+    int **ret = new int *[9];
     for (int i = 0; i < 9; i++) {
         ret[i] = new int[9];
         for (int a = 0; a < 9; a++)
@@ -183,7 +183,7 @@ TEST(TP2_Ex2, testSudokuAlreadySolved) {
     EXPECT_EQ(s.solve(), true);
 
     int out[9][9];
-    int** res = s.getNumbers();
+    int **res = s.getNumbers();
 
     for (int i = 0; i < 9; i++)
         for (int a = 0; a < 9; a++)
@@ -219,7 +219,7 @@ TEST(TP2_Ex2, testSudokuNoneBackStepsRequired) {
     EXPECT_EQ(s.solve(), true);
 
     int sout[9][9];
-    int** res = s.getNumbers();
+    int **res = s.getNumbers();
 
     for (int i = 0; i < 9; i++)
         for (int a = 0; a < 9; a++)
@@ -255,7 +255,7 @@ TEST(TP2_Ex2, testSudokuSomeBackStepsRequired) {
     EXPECT_EQ(s.solve(), true);
 
     int sout[9][9];
-    int** res = s.getNumbers();
+    int **res = s.getNumbers();
 
     for (int i = 0; i < 9; i++)
         for (int a = 0; a < 9; a++)
@@ -327,7 +327,7 @@ TEST(TP2_Ex2, testSudokuWithMinimalClues) {
     EXPECT_EQ(s.solve(), true);
 
     int sout[9][9];
-    int** res = s.getNumbers();
+    int **res = s.getNumbers();
 
     for (int i = 0; i < 9; i++)
         for (int a = 0; a < 9; a++)
@@ -339,22 +339,22 @@ TEST(TP2_Ex2, testSudokuWithMinimalClues) {
 TEST(TP2_Ex2, testSudokuWithMultipleSolutions) {
     int in[9][9] =
             {{0/*7*/, 0, 0, 1, 0, 8, 0, 0, 0},
-             {0, 9, 0, 0, 0, 0, 0, 3, 2},
-             {0, 0, 0, 0, 0, 5, 0, 0, 0},
-             {0, 0, 0, 0, 0, 0, 1, 0, 0},
-             {9, 6, 0, 0, 2, 0, 0, 0, 0},
-             {0, 0, 0, 0, 0, 0, 8, 0, 0},
-             {0, 0, 0, 0, 0, 0, 0, 0, 0},
-             {0, 0, 5, 0, 0, 1, 0, 0, 0},
-             {3, 2, 0, 0, 0, 0, 0, 0, 6}};
+             {0,      9, 0, 0, 0, 0, 0, 3, 2},
+             {0,      0, 0, 0, 0, 5, 0, 0, 0},
+             {0,      0, 0, 0, 0, 0, 1, 0, 0},
+             {9,      6, 0, 0, 2, 0, 0, 0, 0},
+             {0,      0, 0, 0, 0, 0, 8, 0, 0},
+             {0,      0, 0, 0, 0, 0, 0, 0, 0},
+             {0,      0, 5, 0, 0, 1, 0, 0, 0},
+             {3,      2, 0, 0, 0, 0, 0, 0, 6}};
 
     Sudoku s(in);
     EXPECT_EQ(s.countSolutions(), 2);
     EXPECT_EQ(s.solve() && s.isComplete(), true);
 
-    int** out = s.getNumbers();
-    for (int i=0; i<9; i++)
-        for (int j=0; j<9; j++)
+    int **out = s.getNumbers();
+    for (int i = 0; i < 9; i++)
+        for (int j = 0; j < 9; j++)
             if (in[i][j] != 0)
                 EXPECT_EQ(in[i][j], out[i][j]);
 }
@@ -380,15 +380,15 @@ TEST(TP2_Ex2, testSudokuEmpty) {
 
 TEST(TP2_Ex2, testSudokuImpossible) {
     int in[9][9] =
-            {{7, 0, 0, 1, 0, 8, 0, 0, 0},
+            {{7,      0, 0, 1, 0, 8, 0, 0, 0},
              {4/*0*/, 9, 0, 0, 0, 0, 0, 3, 2},
-             {0, 0, 0, 0, 0, 5, 0, 0, 0},
-             {0, 0, 0, 0, 0, 0, 1, 0, 0},
-             {9, 6, 0, 0, 2, 0, 0, 0, 0},
-             {0, 0, 0, 0, 0, 0, 8, 0, 0},
-             {0, 0, 0, 0, 0, 0, 0, 0, 0},
-             {0, 0, 5, 0, 0, 1, 0, 0, 0},
-             {3, 2, 0, 0, 0, 0, 0, 0, 6}};
+             {0,      0, 0, 0, 0, 5, 0, 0, 0},
+             {0,      0, 0, 0, 0, 0, 1, 0, 0},
+             {9,      6, 0, 0, 2, 0, 0, 0, 0},
+             {0,      0, 0, 0, 0, 0, 8, 0, 0},
+             {0,      0, 0, 0, 0, 0, 0, 0, 0},
+             {0,      0, 5, 0, 0, 1, 0, 0, 0},
+             {3,      2, 0, 0, 0, 0, 0, 0, 6}};
 
     Sudoku s(in);
 
@@ -396,7 +396,7 @@ TEST(TP2_Ex2, testSudokuImpossible) {
     EXPECT_EQ(s.solve(), false);
 
     int out[9][9];
-    int** res = s.getNumbers();
+    int **res = s.getNumbers();
 
     for (int i = 0; i < 9; i++)
         for (int a = 0; a < 9; a++)
