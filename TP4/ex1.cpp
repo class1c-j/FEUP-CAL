@@ -8,18 +8,18 @@ unsigned long factorialRecurs(unsigned long n) {
 }
 
 unsigned long factorialDP(unsigned long n) {
-    unsigned long dp[100000];
-    for (unsigned long & i : dp) {
-        i = 0;
+    unsigned long dp[n + 1];
+    dp[0] = 1; dp[1] = 1;  // base cases
+    for (int i = 2; i < n + 1; ++i) {  // initialize dp matrix
+        dp[i] = i;
     }
-    if (n == 0 || n == 1) {
-        return 1;
+    if (dp[n] == n) { // not calculated
+        for (unsigned long i = 1; i < n; ++i) {
+            dp[n] *= i;
+        }
     }
-    if (dp[n] != 0) {
-        return dp[n];
-    } else {
-      return dp[n] = n * factorialDP(n - 1);
-    }
+    return dp[n];
+
 }
 
 /// TESTS ///
