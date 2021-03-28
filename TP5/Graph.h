@@ -6,6 +6,7 @@
 
 #include <vector>
 #include <queue>
+#include <list>
 
 template<class T>
 class Edge;
@@ -288,8 +289,35 @@ std::vector<T> Graph<T>::bfs(const T &source) const {
 
 template<class T>
 std::vector<T> Graph<T>::topsort() const {
-    // TODO (26 lines)
     std::vector<T> res;
+    for (Vertex<T>* vertex : vertexSet) {
+        vertex->indegree = 0;
+    }
+    for (Vertex<T>* v : vertexSet) {
+        for (Edge<T> w : v->adj) {
+            w.dest->indegree++;
+        }
+    }
+    std::queue<Vertex<T>* > queue{};
+    for (Vertex<T>* vertex : vertexSet) {
+        if (vertex->indegree == 0) {
+            queue.push(vertex);
+        }
+    }
+    while (!queue.empty()) {
+        Vertex<T>* v = queue.front();
+        queue.pop();
+        res.push_back(v->info);
+        for (Edge<T> edge : v->adj) {
+            edge.dest->indegree--;
+            if (edge.dest->indegree == 0) {
+                queue.push(edge.dest);
+            }
+        }
+    }
+    if (res.size() != vertexSet.size()) {
+        return {};
+    }
     return res;
 }
 

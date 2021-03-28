@@ -1,8 +1,42 @@
 #include "exercises.h"
 
 bool changeMakingDP(unsigned int C[], unsigned int Stock[], unsigned int n, unsigned int T, unsigned int usedCoins[]) {
-    // TODO
-    return false;
+    const unsigned int INF_N_COINS = T + 1;
+    unsigned int minCoins[1001]; // Assumes T <= 1000
+    unsigned int lastCoin[1001]; // Assumes n <= 1000
+    unsigned int remainingStock[1001]; // Assumes n <= 1000
+
+    // Step 1 : Initialize the DP table
+    minCoins[0] = 0;
+    for (unsigned int k = 1; k <= T; ++k) {
+        minCoins[k] = INF_N_COINS;
+        remainingStock[k] = Stock[0];
+    }
+    // Step 2 : Compute minCoins(i, k) for i > 0
+    for (unsigned int i = 0; i < n; ++i) {
+        if (Stock[i] == 0) continue;
+        for (unsigned int k = C[i]; k <= T; ++k) {
+            if (minCoins[k - C[i]] < minCoins[k]) {
+                minCoins[k] = minCoins[k - C[i]] + 1;
+                lastCoin[k] = i;
+                remainingStock[k] = remainingStock[k - C[i]] - 1;
+            }
+        }
+    }
+
+    if (minCoins[T] == INF_N_COINS) return false;
+
+    // Step 3 : Build the solution
+    for (unsigned int i = 0; i < n; ++i) {
+        usedCoins[i] = 0;
+    }
+    int k = T;
+    while (k > 0) {
+        int nextID = lastCoin[k];
+        ++usedCoins[nextID];
+        k -= C[nextID];
+    }
+    return true;
 }
 
 /// TESTS ///

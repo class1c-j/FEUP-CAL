@@ -11,8 +11,7 @@ int maxSubsequence(int A[], unsigned int n, unsigned int &i, unsigned int &j);
 bool changeMakingBF(unsigned int C[], unsigned int Stock[], unsigned int n, unsigned int T, unsigned int usedCoins[]);
 
 // Ex 4
-bool
-changeMakingGreedy(unsigned int C[], unsigned int Stock[], unsigned int n, unsigned int T, unsigned int usedCoins[]);
+bool changeMakingGreedy(unsigned int C[], unsigned int Stock[], unsigned int n, unsigned int T, unsigned int usedCoins[]);
 
 // Ex 5
 bool isCanonical(unsigned int C[], unsigned int n);
@@ -25,16 +24,11 @@ class Activity {
 public:
     unsigned int start;
     unsigned int finish;
-
-    Activity(unsigned int s, unsigned int f) : start(s), finish(f) {};
-
+    Activity(unsigned int s, unsigned int f): start(s), finish(f){};
     bool operator==(const Activity &a2) const;
-
     bool operator<(const Activity &a2) const;
-
     bool overrides(const Activity &a2) const;
 };
-
 std::vector<Activity> earliestFinishScheduling(std::vector<Activity> A);
 
 // Ex 7
