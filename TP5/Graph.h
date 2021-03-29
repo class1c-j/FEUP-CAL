@@ -6,7 +6,7 @@
 
 #include <vector>
 #include <queue>
-#include <list>
+#include <algorithm>
 
 template<class T>
 class Edge;
@@ -33,7 +33,7 @@ class Vertex {
     bool removeEdgeTo(Vertex<T> *d);
 
 public:
-    Vertex(T in);
+    explicit Vertex(T in);
 
     friend class Graph<T>;
 };
@@ -85,10 +85,12 @@ public:
 /****************** Provided constructors and functions ********************/
 
 template<class T>
-Vertex<T>::Vertex(T in): info(in) {}
+Vertex<T>::Vertex(T in): info(in) {
+}
 
 template<class T>
-Edge<T>::Edge(Vertex<T> *d, double w): dest(d), weight(w) {}
+Edge<T>::Edge(Vertex<T> *d, double w): dest(d), weight(w) {
+}
 
 
 template<class T>
@@ -290,22 +292,23 @@ std::vector<T> Graph<T>::bfs(const T &source) const {
 template<class T>
 std::vector<T> Graph<T>::topsort() const {
     std::vector<T> res;
-    for (Vertex<T>* vertex : vertexSet) {
+    for (Vertex<T> *vertex : vertexSet) {
         vertex->indegree = 0;
     }
-    for (Vertex<T>* v : vertexSet) {
+    for (Vertex<T> *v : vertexSet) {
         for (Edge<T> w : v->adj) {
             w.dest->indegree++;
         }
     }
-    std::queue<Vertex<T>* > queue{};
-    for (Vertex<T>* vertex : vertexSet) {
+    std::queue<Vertex<T> *> queue{
+    };
+    for (Vertex<T> *vertex : vertexSet) {
         if (vertex->indegree == 0) {
             queue.push(vertex);
         }
     }
     while (!queue.empty()) {
-        Vertex<T>* v = queue.front();
+        Vertex<T> *v = queue.front();
         queue.pop();
         res.push_back(v->info);
         for (Edge<T> edge : v->adj) {
@@ -316,7 +319,8 @@ std::vector<T> Graph<T>::topsort() const {
         }
     }
     if (res.size() != vertexSet.size()) {
-        return {};
+        return {
+        };
     }
     return res;
 }
@@ -336,20 +340,21 @@ int Graph<T>::maxNewChildren(const T &source, T &inf) const {
     int maxChildren = 0;
     Vertex<T> *vertex = findVertex(source);
     if (vertex == nullptr) {
-        inf = T{};
+        inf = T{
+        };
         return 0;
     }
 
-    for (Vertex<T>* v : vertexSet) {
+    for (Vertex<T> *v : vertexSet) {
         v->visited = false;
     }
 
     vertex->visited = true;
-    std::queue<Vertex<T>* > toVisit{};
+    std::queue<Vertex<T> *> toVisit{};
     toVisit.push(vertex);
 
     while (!toVisit.empty()) {
-        Vertex<T>* found = toVisit.front();
+        Vertex<T> *found = toVisit.front();
         toVisit.pop();
         int childCount = 0;
         for (Edge<T> adjEdge : found->adj) {
@@ -380,19 +385,13 @@ int Graph<T>::maxNewChildren(const T &source, T &inf) const {
 
 template<class T>
 bool Graph<T>::isDAG() const {
-    // TODO (9 lines, mostly reused)
-    // HINT: use the auxiliary field "processing" to mark the vertices in the stack.
-    for (Vertex<T>* vertex : vertexSet) {
+    for (Vertex<T> *vertex : vertexSet) {
         vertex->processing = false;
         vertex->visited = false;
     }
-    for (Vertex<T>* vertex : vertexSet) {
-        if (!vertex->visited) {
-            if (!dfsIsDAG(vertex)) return false;
-        }
-    }
-
-    return true;
+    return std::all_of(vertexSet.begin(), vertexSet.end(), [this](Vertex<T>* vertex){
+        return vertex->visited || dfsIsDAG(vertex);
+    });
 }
 
 /**
