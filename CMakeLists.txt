@@ -29,6 +29,10 @@ file(GLOB TP6_FILES CONFIGURE_DEPENDS
         "TP6/*.cpp"
         )
 
+file(GLOB TP7_FILES CONFIGURE_DEPENDS
+        "TP7/*.cpp"
+        )
+
 add_executable(TP1
         main.cpp
         ${TP1_FILES}
@@ -57,9 +61,15 @@ add_executable(TP6
         ${TP6_FILES}
         )
 
+add_executable(TP7
+        main.cpp
+        ${TP7_FILES}
+        )
+
 target_link_libraries(TP1 gtest_main gmock_main)
 target_link_libraries(TP2 gtest_main gmock_main)
 target_link_libraries(TP3 gtest_main gmock_main)
 target_link_libraries(TP4 gtest_main gmock_main)
 target_link_libraries(TP5 gtest_main gmock_main)
 target_link_libraries(TP6 gtest_main gmock_main)
+target_link_libraries(TP7 gtest_main gmock_main)
