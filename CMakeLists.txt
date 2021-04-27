@@ -41,6 +41,9 @@ file(GLOB TP7_GRAPHVIEWER_FILES CONFIGURE_DEPENDS
 file(GLOB TP8_FILES CONFIGURE_DEPENDS
         "TP8/*.cpp"
         )
+file(GLOB TP9_FILES CONFIGURE_DEPENDS
+        "TP9/*.cpp"
+        )
 
 add_executable(TP1
         main.cpp
@@ -76,6 +79,9 @@ add_executable(TP7_graphviewer
 add_executable(TP8
         ${TP8_FILES}
         )
+add_executable(TP9
+        ${TP9_FILES}
+        )
 
 target_link_libraries(TP1 gtest_main gmock_main)
 target_link_libraries(TP2 gtest_main gmock_main)
@@ -86,3 +92,4 @@ target_link_libraries(TP6 gtest_main gmock_main)
 target_link_libraries(TP7 gtest_main gmock_main)
 target_link_libraries(TP7_graphviewer graphviewer)
 target_link_libraries(TP8 gtest_main gmock_main)
+target_link_libraries(TP9 gtest_main gmock_main)
