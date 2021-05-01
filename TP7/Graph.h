@@ -271,13 +271,15 @@ void Graph<T>::makeSet(Vertex<T> * x) {
 
 template <class T>
 void Graph<T>::linkSets(Vertex<T> * x, Vertex<T> * y) {
-	if (x->rank > y->rank)
-		y->path = x;
-	else {
-		x->path = y;
-		if (x->rank == y->rank)
-			y->rank++;
-	}
+    auto i = findSet(x);
+    auto j = findSet(y);
+    if (i->rank > j->rank)
+        j->path = i;
+    else {
+        i->path = j;
+        if (i->rank == j->rank)
+            j->rank++;
+    }
 }
 
 template <class T>

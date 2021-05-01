@@ -26,7 +26,7 @@ TEST(TP7_Ex1, test_prim) {
 TEST(TP7_Ex1, test_performance_prim) {
     //TODO: Change these const parameters as needed
     const int MIN_SIZE = 10;
-    const int MAX_SIZE = 30; //Try with 100
+    const int MAX_SIZE = 100; //Try with 100
     const int STEP_SIZE = 10;
     const int N_REPETITIONS = 50;
     for (int n = MIN_SIZE; n <= MAX_SIZE; n += STEP_SIZE) {
