@@ -17,8 +17,8 @@ void ex4() {
     for(GraphViewer::id_t i = 0; i < N; ++i){
         iNodesStream >> idNode >> lat >> lon;
         Node &node = gv.addNode(idNode, sf::Vector2f(lon, -lat));
-        node.setOutlineThickness(0.00002);
-        node.setSize(0.0001);
+        node.setOutlineThickness(0.0);
+        node.setSize(0.0);
     }
 
     ifstream iEdgesStream("../TP7_graphviewer/resources/map2/edges.txt");
@@ -38,7 +38,10 @@ void ex4() {
             0.8
     );
 
-    // TODO
+    gv.setEnabledNodes(false);
+    gv.setEnabledEdgesText(false);
+
+    gv.setZipEdges(true);
 
     gv.createWindow(1600, 900);
     gv.join();
