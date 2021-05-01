@@ -393,7 +393,7 @@ bool Graph<T>::relax(Vertex<T> *v, Vertex<T> *w, Edge<T> *e, double residual, do
 template<class T>
 double Graph<T>::minCostFlow(T source, T sink, double flow) {
     // TODO: implement based on slides and the given implementation of Ford-Fulkerson algorithm
-
+    
     return 0.0;
 }
 
