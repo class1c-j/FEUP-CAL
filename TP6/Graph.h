@@ -18,6 +18,7 @@ template <class T> class Graph;
 template <class T> class Vertex;
 
 #define INF std::numeric_limits<double>::max()
+const double MAX_DIST = INF;
 
 /************************* Vertex  **************************/
 
@@ -173,8 +174,6 @@ bool Graph<T>::addEdge(const T &sourc, const T &dest, double w) {
 
 template<class T>
 void Graph<T>::unweightedShortestPath(const T &orig) {
-    // TODO implement this
-    const double MAX_DIST = INF;
     for (Vertex<T>* vertex : this->vertexSet) {
         vertex->dist = MAX_DIST;
         vertex->path = NULL;
@@ -199,7 +198,30 @@ void Graph<T>::unweightedShortestPath(const T &orig) {
 
 template<class T>
 void Graph<T>::dijkstraShortestPath(const T &origin) {
-    // TODO implement this
+    for (Vertex<T>* vertex : this->vertexSet) {
+        vertex->dist = MAX_DIST;
+        vertex->path = NULL;
+    }
+    Vertex<T>* source = findVertex(origin);
+    if (source == nullptr) return;
+    source->dist = 0;
+    MutablePriorityQueue<Vertex<T> > q;
+    q.insert(source);
+    while (!q.empty()) {
+        Vertex<T>* vertex = q.extractMin();
+        for (Edge<T> edge : vertex->adj) {
+            double oldDist = edge.dest->dist;
+            if (edge.dest->dist > vertex->dist + edge.weight) {
+                edge.dest->dist = vertex->dist + edge.weight;
+                edge.dest->path = vertex;
+                if (oldDist == MAX_DIST) {
+                    q.insert(edge.dest);
+                } else {
+                    q.decreaseKey(edge.dest);
+                }
+            }
+        }
+    }
 }
 
 
