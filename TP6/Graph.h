@@ -26,6 +26,7 @@ class Vertex;
 #define INF std::numeric_limits<double>::max()
 const double MAX_DIST = INF;
 
+
 /************************* Vertex  **************************/
 
 template<class T>
@@ -113,9 +114,13 @@ Edge<T>::Edge(Vertex<T> *d, double w): dest(d), weight(w) {}
 template<class T>
 class Graph {
     std::vector<Vertex<T> *> vertexSet;    // vertex set
+    double **adjacencyMatrix;
+    int **dp;
 
 public:
     Vertex<T> *findVertex(const T &in) const;
+
+    size_t findVertexIdx(T info) const;
 
     bool addVertex(const T &in);
 
@@ -126,14 +131,18 @@ public:
     std::vector<Vertex<T> *> getVertexSet() const;
 
     // Fp06 - single source
-    void unweightedShortestPath(const T &s);    //TODO...
-    void dijkstraShortestPath(const T &s);      //TODO...
-    void bellmanFordShortestPath(const T &s);   //TODO...
-    std::vector<T> getPath(const T &origin, const T &dest) const;   //TODO...
+    void unweightedShortestPath(const T &s);
+
+    void dijkstraShortestPath(const T &s);
+
+    void bellmanFordShortestPath(const T &s);
+
+    std::vector<T> getPath(const T &origin, const T &dest) const;
 
     // Fp06 - all pairs
-    void floydWarshallShortestPath();   //TODO...
-    std::vector<T> getfloydWarshallPath(const T &origin, const T &dest) const;   //TODO...
+    void floydWarshallShortestPath();
+
+    std::vector<T> getfloydWarshallPath(const T &origin, const T &dest) const;
 
 };
 
@@ -288,19 +297,70 @@ std::vector<T> Graph<T>::getPath(const T &origin, const T &dest) const {
     return res;
 }
 
-
 /**************** All Pairs Shortest Path  ***************/
 
 template<class T>
 void Graph<T>::floydWarshallShortestPath() {
-    // TODO implement this
+    size_t n = vertexSet.size();
+    /*for (int i = 0; i < n; ++i) {
+        delete [] adjacencyMatrix[i];
+        delete [] dp[i];
+    }
+    delete [] adjacencyMatrix;
+    delete [] dp;*/
+    adjacencyMatrix = new double *[n];
+    dp = new int *[n];
+    for (size_t i = 0; i < n; ++i) {
+        adjacencyMatrix[i] = new double[n];
+        dp[i] = new int[n];
+        for (size_t j = 0; j < n; ++j) {
+            adjacencyMatrix[i][j] = i == j ? 0 : INF;
+            dp[i][j] = -1;
+        }
+        for (Edge<T> edge : this->vertexSet.at(i)->adj) {
+            size_t j = findVertexIdx(edge.dest->info);
+            adjacencyMatrix[i][j] = edge.weight;
+            dp[i][j] = i;
+        }
+    }
+    for (size_t k = 0; k < n; ++k) {
+        for (size_t i = 0; i < n; ++i) {
+            for (size_t j = 0; j < n; ++j) {
+                if (adjacencyMatrix[i][k] == INF || adjacencyMatrix[k][j] == INF) continue;
+                double newDist = std::min(adjacencyMatrix[i][j], adjacencyMatrix[i][k] + adjacencyMatrix[k][j]);
+                if (newDist < adjacencyMatrix[i][j]) {
+                    adjacencyMatrix[i][j] = newDist;
+                    dp[i][j] = dp[k][j];
+                }
+            }
+        }
+    }
+
 }
 
 template<class T>
 std::vector<T> Graph<T>::getfloydWarshallPath(const T &orig, const T &dest) const {
     std::vector<T> res;
-    // TODO implement this
+    int i = findVertexIdx(orig);
+    int j = findVertexIdx(dest);
+    if (i == -1 || j == -1 || adjacencyMatrix[i][j] == INF) { // missing or disconnected
+        return res;
+    }
+    for (; j != -1; j = dp[i][j]) {
+        res.push_back(vertexSet[j]->info);
+    }
+    reverse(res.begin(), res.end());
     return res;
+}
+
+template<class T>
+size_t Graph<T>::findVertexIdx(T info) const {
+    for (size_t i = 0; i < this->vertexSet.size(); ++i) {
+        if (this->vertexSet.at(i)->info == info) {
+            return i;
+        }
+    }
+    return -1;
 }
 
 
