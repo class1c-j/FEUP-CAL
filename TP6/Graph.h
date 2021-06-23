@@ -327,7 +327,7 @@ void Graph<T>::floydWarshallShortestPath() {
         for (size_t i = 0; i < n; ++i) {
             for (size_t j = 0; j < n; ++j) {
                 if (adjacencyMatrix[i][k] == INF || adjacencyMatrix[k][j] == INF) continue;
-                double newDist = std::min(adjacencyMatrix[i][j], adjacencyMatrix[i][k] + adjacencyMatrix[k][j]);
+                double newDist = adjacencyMatrix[i][k] + adjacencyMatrix[k][j];
                 if (newDist < adjacencyMatrix[i][j]) {
                     adjacencyMatrix[i][j] = newDist;
                     dp[i][j] = dp[k][j];
