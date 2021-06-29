@@ -48,7 +48,7 @@ int numStringMatching(std::string filename, std::string toSearch) {
     std::ifstream file(filename);
     std::string line{};
     int totalCounter = 0;
-    for (; std::getline(file, line);){
+    for (; std::getline(file, line);) {
         totalCounter += kmpMatcher(line, toSearch);
     }
     return totalCounter;
