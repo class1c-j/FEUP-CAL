@@ -40,7 +40,7 @@ float numApproximateStringMatching(std::string filename, std::string toSearch) {
         std::string word{};
         while (!ss.eof()) {
             ss >> word;
-            totalDistance += (float)editDistance(toSearch, word);
+            totalDistance += (float) editDistance(toSearch, word);
             ++numberOfWords;
         }
     }
